@@ -1,12 +1,20 @@
+### INITIAL SETUP
+
+## Import Modules
+# Discord
 import discord
 from discord.ext import commands
+# Random Content Selection 
 import random
-import logging
 import glob
+# Maintenance/Security
+import logging
+import os #TODO: Could glob do the job instead?
+from dotenv import load_dotenv
 
-# Logging module setup
+# Logging module setup (Maybe move to another .py file if this project gets big enough)
 logger = logging.getLogger('discord')
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
@@ -33,10 +41,13 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name=status))
     channel = bot.get_channel(312583704524619786)
     await channel.send("External Report Check: Ready to go!")
+    #TODO: Random hello to servers?
 
 
 
-# Random Content Commands
+### COMMANDS
+
+## Random Content Commands
 # Images
 @bot.command()
 async def photo(ctx):
@@ -49,7 +60,7 @@ async def picasso(ctx):
 async def motion(ctx):
     await ctx.send(file=discord.File(mediaGenerator("motion"), filename=None))
 # Text
-@bot.command()
+@bot.command() #TODO: Make an actual help embed
 async def help(ctx):
     await ctx.send(dialogueGenerator("help"))
 @bot.command()
@@ -58,6 +69,6 @@ async def quote(ctx):
 
 
 
-# Token for the bot
-#bot.run("token")
-
+# Token
+load_dotenv('.env')
+bot.run(os.getenv('PERSONBOT_TOKEN'))
