@@ -45,11 +45,13 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name=status))
     channel = bot.get_channel(312583704524619786)
     await channel.send("External Report Check: Ready to go!")
-@bot.event
-async def on_message(message):
-    mention = f'<@!{bot.user.id}>'
-    if mention in message.content:
-        await message.channel.send(dialogueGenerator("mentioned"))
+## Event below currently breaks all code.
+## It's overriding all other commands being sent out.
+#@bot.event
+#async def on_message(message):
+#    mention = f'<@!{bot.user.id}>'
+#    if mention in message.content:
+#        await message.channel.send(dialogueGenerator("mentioned"))
 # TODO: On null command, bring up error 
 
 
