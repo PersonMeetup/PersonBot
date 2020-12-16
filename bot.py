@@ -14,7 +14,9 @@ handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(me
 logger.addHandler(handler)
 
 # Bot setup
-bot = commands.Bot(command_prefix="-pb ")
+intents = discord.Intents.default()
+intents.members = True
+bot = commands.Bot(command_prefix="-pb ", intents=intents)
 class MyNewHelp(commands.MinimalHelpCommand):
     async def send_pages(self):
         destination = self.get_destination()
@@ -43,6 +45,12 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name=status))
     channel = bot.get_channel(312583704524619786)
     await channel.send("External Report Check: Ready to go!")
+@bot.event
+async def on_message(message):
+    mention = f'<@!{bot.user.id}>'
+    if mention in message.content:
+        await message.channel.send(dialogueGenerator("mentioned"))
+# TODO: On null command, bring up error 
 
 
 
@@ -61,13 +69,16 @@ async def picasso(ctx):
 async def motion(ctx):
     await ctx.send(file=discord.File(mediaGenerator("motion"), filename=None))
 # Text
-#@bot.command() #TODO: Make an actual help embed
-#async def help(ctx):
-#    await ctx.send(dialogueGenerator("help"))
-
 @bot.command()
 async def quote(ctx):
     await ctx.send(dialogueGenerator("quote"))
+@bot.command()
+async def harass(ctx):
+    person = ctx.guild.get_member(149608924394422272)
+    try:
+        await ctx.send(f"{person.mention} " + dialogueGenerator("harass"))
+    except:
+        await ctx.send(dialogueGenerator("harass-error"))
 
 
 
