@@ -40,7 +40,7 @@ def dialogueGenerator(request):
 
 @bot.event
 async def on_ready():
-    status = (dialogueGenerator("game") + " | -pb help")
+    status = (dialogueGenerator("game") + " | /pb help")
     print("Internal Report Check: Logged in as {0.user}".format(bot))
     await bot.change_presence(activity=discord.Game(name=status))
     channel = bot.get_channel(312583704524619786)
@@ -52,8 +52,11 @@ async def on_ready():
 #    mention = f'<@!{bot.user.id}>'
 #    if mention in message.content:
 #        await message.channel.send(dialogueGenerator("mentioned"))
-# TODO: On null command, bring up error 
-
+#    else:
+#        ???
+@bot.event
+async def on_command_error(ctx, error):
+    await ctx.send(dialogueGenerator("error"))
 
 
 ### COMMANDS
