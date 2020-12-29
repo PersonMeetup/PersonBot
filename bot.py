@@ -1,10 +1,10 @@
 import discord
 from discord.ext import commands
+from discord.utils import get
 import random
 from glob import glob
 import logging
 import os
-from dotenv import load_dotenv
 
 # Logging module setup (Maybe move to another .py file if this project gets big enough)
 logger = logging.getLogger('discord')
@@ -35,12 +35,11 @@ def mediaGenerator(request):
     mediaPaths = glob(folder + "/*")
     return random.choice(mediaPaths)
 
-def dialogueGenerator(request):
-    return(random.choice(list(open("content/dialogue/" + request + ".txt"))))
+def dialogueGenerator(request): return(random.choice(list(open("content/dialogue/" + request + ".txt"))))
 
 @bot.event
 async def on_ready():
-    status = (dialogueGenerator("game") + " | /pb help")
+    status = (dialogueGenerator("game") + " | -pb help")
     print("Internal Report Check: Logged in as {0.user}".format(bot))
     await bot.change_presence(activity=discord.Game(name=status))
     channel = bot.get_channel(312583704524619786)
@@ -84,9 +83,34 @@ async def harass(ctx):
         await ctx.send(f"{person.mention} " + dialogueGenerator("harass"))
     except:
         await ctx.send(dialogueGenerator("harass-error"))
+# Audio
+@bot.command()
+async def summon(ctx):
+    channel = ctx.message.author.voice.channel #This is kinda interesting, worth exploring more
+    voice = get(ctx.bot.voice_clients, guild=ctx.guild)
+    if voice and voice.is_connected():
+        if ctx.voice_client is not None and not channel:
+            await ctx.voice_client.move_to(channel)
+            print(f"Connected to voice channel {channel}")
+            await ctx.send("I'm here, can you just repeat that?")
+    else:
+        voice = await channel.connect()
+        print(f"Connected to voice channel {channel}")
+    
+    try:
+        source = discord.FFmpegPCMAudio(mediaGenerator("audio"))
+        voice.play(discord.PCMVolumeTransformer(source))
+        voice.source.volume = 0.5
+    except:
+        await ctx.send("Slow down!")
+# KNOWN ISSUES: Moving the bot does not allow for playback (https://github.com/Rapptz/discord.py/issues/6219)
+
+@bot.command()
+async def leave(ctx): #There is no practical way to remove the bot from the VC automatically as far as I know (TODO: PROVE THIS WRONG)
+    voice = get(ctx.bot.voice_clients, guild=ctx.guild)
+    await voice.disconnect()
 
 
 
 ### TOKEN
-load_dotenv('.env')
 bot.run(os.getenv('PERSONBOT_TOKEN'))
