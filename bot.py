@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from discord_slash import manage_commands
 from discord_slash import SlashCommand, SlashContext
 import random
 from glob import glob
@@ -47,6 +48,11 @@ async def on_ready():
     await bot.change_presence(activity=discord.Game(name=status))
     channel = bot.get_channel(312583704524619786)
     await channel.send("External Report Check: Ready to go!")
+    resp = await manage_commands.get_all_commands(787713500813197342,"Nzg3NzEzNTAwODEzMTk3MzQy.X9Y9XQ.MSdclRS0niMVZ5BHhx1TmApbosE",312583704524619786)
+    print(resp) #TODO: Once updated to 3.9.X, change to pprint
+    #sbdel = await manage_commands.remove_slash_command(787713500813197342,"Nzg3NzEzNTAwODEzMTk3MzQy.X9Y9XQ.MSdclRS0niMVZ5BHhx1TmApbosE",312583704524619786,792867979992891412)
+    #print(sbdel)
+
 ## Event below currently breaks all code.
 ## It's overriding all other commands being sent out.
 #@bot.event
@@ -63,6 +69,8 @@ async def on_command_error(ctx, error):
 
 ### COMMANDS
 
+## Reference For JSON: https://discord.com/channels/789032594456576001/789032934648447016/791911916422561822
+
 ## (12/27/2020) The auto_register parameter in the discord_slash.client module
 ##              does not yet apply to subcommands. As such, @slash.slash is the
 ##              best method of adding commands as of right now. 
@@ -75,22 +83,25 @@ async def _test(ctx: SlashContext):
 
 ## Random Content Commands
 # Images
-@slash.slash(name="photo",description="Sends a randomised photo to the chat", guild_ids=[312583704524619786])
+@slash.slash(name="photo",description="Sends a random photo of Person", guild_ids=[312583704524619786])
 async def _photo(ctx: SlashContext):
-    await ctx.send(file=discord.File(mediaGenerator("photo"), filename=None))
-@bot.command()
-async def picasso(ctx):
-    await ctx.send(file=discord.File(mediaGenerator("picasso"), filename=None))
+    await ctx.send(5)
+    await ctx.channel.send(file=discord.File(mediaGenerator("photo"), filename=None))
+@slash.slash(name="picasso",description="Sends a random piece of art", guild_ids=[312583704524619786])
+async def _picasso(ctx):
+    await ctx.send(5)
+    await ctx.channel.send(file=discord.File(mediaGenerator("picasso"), filename=None))
 # Videos
-@bot.command()
-async def motion(ctx):
-    await ctx.send(file=discord.File(mediaGenerator("motion"), filename=None))
+@slash.slash(name="motion",description="Sends a random video", guild_ids=[312583704524619786])
+async def _motion(ctx):
+    await ctx.send(5)
+    await ctx.channel.send(file=discord.File(mediaGenerator("motion"), filename=None))
 # Text
 @slash.slash(name="quote",description="Sends a randomised quote", guild_ids=[312583704524619786])
 async def _quote(ctx: SlashContext):
     await ctx.send(content=dialogueGenerator("quote"))
-@bot.command()
-async def harass(ctx):
+@slash.slash(name="harass",description="Pings Person with a message", guild_ids=[312583704524619786])
+async def _harass(ctx):
     person = ctx.guild.get_member(149608924394422272)
     try:
         await ctx.send(content=(f"{person.mention} " + dialogueGenerator("harass")))
