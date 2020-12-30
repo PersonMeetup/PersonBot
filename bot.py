@@ -1,12 +1,13 @@
 import discord
 from discord.ext import commands
+from discord.utils import get
 from discord_slash import manage_commands
 from discord_slash import SlashCommand, SlashContext
 import random
 from glob import glob
 import logging
+import asyncio
 import os
-from dotenv import load_dotenv
 
 # Logging module setup (Maybe move to another .py file if this project gets big enough)
 logger = logging.getLogger('discord')
@@ -30,20 +31,19 @@ class MyNewHelp(commands.MinimalHelpCommand):
 bot.help_command = MyNewHelp()
 
 def mediaGenerator(request):
-    """
-    Randomly picks an content file from the requested database.
-    (request: selects prefered database)
+    """Randomly picks an content file from the requested database.
+
+    `request`: selects prefered database
     """
     folder = "content/" + request
     mediaPaths = glob(folder + "/*")
     return random.choice(mediaPaths)
 
-def dialogueGenerator(request):
-    return(random.choice(list(open("content/dialogue/" + request + ".txt"))))
+def dialogueGenerator(request): return(random.choice(list(open("content/dialogue/" + request + ".txt"))))
 
 @bot.event
 async def on_ready():
-    status = (dialogueGenerator("game") + " | /pb help")
+    status = (dialogueGenerator("game") + " | -pb help")
     print("Internal Report Check: Logged in as {0.user}".format(bot))
     await bot.change_presence(activity=discord.Game(name=status))
     channel = bot.get_channel(312583704524619786)
@@ -107,9 +107,29 @@ async def _harass(ctx):
         await ctx.send(content=(f"{person.mention} " + dialogueGenerator("harass")))
     except:
         await ctx.send(content=(dialogueGenerator("harass-error")))
+# Audio
+@bot.command()
+async def summon(ctx):
+    channel = ctx.message.author.voice.channel #This is kinda interesting, worth exploring more
+    voice = get(ctx.bot.voice_clients, guild=ctx.guild)
+    def toaster(error):
+        coro = voice.disconnect()
+        fut = asyncio.run_coroutine_threadsafe(coro, bot.loop)
+        try:
+            fut.result()
+        except:
+            pass #There was an error while sending message
+
+    if voice and voice.is_connected():
+        await ctx.send("Slow down!")
+    else:
+        voice = await channel.connect()
+        print(f"Connected to voice channel {channel}")
+        source = discord.FFmpegPCMAudio(mediaGenerator("audio"))
+        voice.play(discord.PCMVolumeTransformer(source), after=toaster)
+        voice.source.volume = 0.5
 
 
 
 ### TOKEN
-load_dotenv('.env')
 bot.run(os.getenv('PERSONBOT_TOKEN'))
