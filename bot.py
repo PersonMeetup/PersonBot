@@ -4,6 +4,7 @@ from discord.utils import get
 import random
 from glob import glob
 import logging
+import asyncio
 import os
 
 # Logging module setup (Maybe move to another .py file if this project gets big enough)
@@ -27,9 +28,9 @@ class MyNewHelp(commands.MinimalHelpCommand):
 bot.help_command = MyNewHelp()
 
 def mediaGenerator(request):
-    """
-    Randomly picks an content file from the requested database.
-    (request: selects prefered database)
+    """Randomly picks an content file from the requested database.
+
+    `request`: selects prefered database
     """
     folder = "content/" + request
     mediaPaths = glob(folder + "/*")
@@ -88,27 +89,22 @@ async def harass(ctx):
 async def summon(ctx):
     channel = ctx.message.author.voice.channel #This is kinda interesting, worth exploring more
     voice = get(ctx.bot.voice_clients, guild=ctx.guild)
+    def toaster(error):
+        coro = voice.disconnect()
+        fut = asyncio.run_coroutine_threadsafe(coro, bot.loop)
+        try:
+            fut.result()
+        except:
+            pass #There was an error while sending message
+
     if voice and voice.is_connected():
-        if ctx.voice_client is not None and not channel:
-            await ctx.voice_client.move_to(channel)
-            print(f"Connected to voice channel {channel}")
-            await ctx.send("I'm here, can you just repeat that?")
+        await ctx.send("Slow down!")
     else:
         voice = await channel.connect()
         print(f"Connected to voice channel {channel}")
-    
-    try:
         source = discord.FFmpegPCMAudio(mediaGenerator("audio"))
-        voice.play(discord.PCMVolumeTransformer(source))
+        voice.play(discord.PCMVolumeTransformer(source), after=toaster)
         voice.source.volume = 0.5
-    except:
-        await ctx.send("Slow down!")
-# KNOWN ISSUES: Moving the bot does not allow for playback (https://github.com/Rapptz/discord.py/issues/6219)
-
-@bot.command()
-async def leave(ctx): #There is no practical way to remove the bot from the VC automatically as far as I know (TODO: PROVE THIS WRONG)
-    voice = get(ctx.bot.voice_clients, guild=ctx.guild)
-    await voice.disconnect()
 
 
 
