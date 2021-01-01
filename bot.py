@@ -20,7 +20,7 @@ logger.addHandler(handler)
 intents = discord.Intents.default()
 intents.members = True
 bot = commands.Bot(command_prefix="/", intents=intents)
-slash = SlashCommand(client=bot,auto_register=True)
+slash = SlashCommand(client=bot,auto_register=True,auto_delete=True)
 class MyNewHelp(commands.MinimalHelpCommand):
     async def send_pages(self):
         destination = self.get_destination()
@@ -54,17 +54,15 @@ async def on_ready():
     #sbdel = await manage_commands.remove_slash_command(787713500813197342,"Nzg3NzEzNTAwODEzMTk3MzQy.X9Y9XQ.MSdclRS0niMVZ5BHhx1TmApbosE",312583704524619786,792867979992891412)
     #print(sbdel)
 
-## Event below currently breaks all code.
-## It's overriding all other commands being sent out.
-#@bot.event
-#async def on_message(message):
-#    mention = f'<@!{bot.user.id}>'
-#    if mention in message.content:
-#        await message.channel.send(dialogueGenerator("mentioned"))
-#    else:
-#        ???
 @bot.event
-async def on_command_error(ctx, error):
+async def on_message(message):
+    mention = f'<@!{bot.user.id}>'
+    if mention in message.content:
+        await message.channel.send(dialogueGenerator("mentioned"))
+
+# May not be needed with slash commands
+@bot.event
+async def on_slash_command_error(ctx, error):
     await ctx.send(dialogueGenerator("error"))
 
 
@@ -72,15 +70,10 @@ async def on_command_error(ctx, error):
 
 ## Reference For JSON: https://discord.com/channels/789032594456576001/789032934648447016/791911916422561822
 
-## (12/27/2020) The auto_register parameter in the discord_slash.client module
-##              does not yet apply to subcommands. As such, @slash.slash is the
-##              best method of adding commands as of right now. 
-
-# Copied from eunwoo1104's README for reference
-@slash.slash(name="test", description="Pain without end", guild_ids=guild_ids)
-async def _test(ctx: SlashContext):
-    embed = discord.Embed(title="embed test")
-    await ctx.send(content="test", embeds=[embed])
+# Copied from .client wiki for reference
+@slash.subcommand(base="group", name="say", guild_ids=guild_ids)
+async def _group_say(ctx, _str):
+    await ctx.send(content=_str)
 
 ## Random Content Commands
 # Images
