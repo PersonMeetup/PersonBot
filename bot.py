@@ -39,7 +39,7 @@ async def on_ready():
     status = (dialogueGenerator('game') + ' | / enabled')
     print('Internal Report Check: Logged in as {0.user}'.format(bot))
     await bot.change_presence(activity=discord.Game(name=status))
-    resp = await manage_commands.get_all_commands(787713500813197342,"Nzg3NzEzNTAwODEzMTk3MzQy.X9Y9XQ.MSdclRS0niMVZ5BHhx1TmApbosE",None)
+    resp = await manage_commands.get_all_commands(787713500813197342,os.getenv('PERSONBOT_TOKEN'),None)
     print(resp) #TODO: Once updated to 3.9.X, change to pprint
 
 @bot.event
