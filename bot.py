@@ -19,16 +19,8 @@ logger.addHandler(handler)
 # Bot setup
 intents = discord.Intents.default()
 intents.members = True
-bot = commands.Bot(command_prefix="/", intents=intents)
+bot = commands.Bot(command_prefix="/", intents=intents,help_command=None)
 slash = SlashCommand(client=bot,auto_register=True,auto_delete=True)
-class MyNewHelp(commands.MinimalHelpCommand):
-    async def send_pages(self):
-        destination = self.get_destination()
-        friendlyHelp = discord.Embed(title=dialogueGenerator("help"), description='' , color=discord.Color.green())
-        for page in self.paginator.pages:
-            friendlyHelp.description += page
-            await destination.send(embed=friendlyHelp)
-bot.help_command = MyNewHelp()
 guild_ids = [312583704524619786]
 
 def mediaGenerator(request):
@@ -51,8 +43,6 @@ async def on_ready():
     await channel.send("External Report Check: Ready to go!")
     resp = await manage_commands.get_all_commands(787713500813197342,"Nzg3NzEzNTAwODEzMTk3MzQy.X9Y9XQ.MSdclRS0niMVZ5BHhx1TmApbosE",312583704524619786)
     print(resp) #TODO: Once updated to 3.9.X, change to pprint
-    #sbdel = await manage_commands.remove_slash_command(787713500813197342,"Nzg3NzEzNTAwODEzMTk3MzQy.X9Y9XQ.MSdclRS0niMVZ5BHhx1TmApbosE",312583704524619786,792867979992891412)
-    #print(sbdel)
 
 @bot.event
 async def on_message(message):
@@ -66,19 +56,16 @@ async def on_slash_command_error(ctx, error):
     await ctx.send(dialogueGenerator("error"))
 
 
+
 ### COMMANDS
 
 ## Reference For JSON: https://discord.com/channels/789032594456576001/789032934648447016/791911916422561822
-
-# Copied from .client wiki for reference
-@slash.subcommand(base="group", name="say", guild_ids=guild_ids)
-async def _group_say(ctx, _str):
-    await ctx.send(content=_str)
+## Future Note: subcommands require a base string of <= 3 (do not include spaces)
 
 ## Random Content Commands
 # Images
-@slash.slash(name="photo",description="Sends a random photo of Person", guild_ids=guild_ids)
-async def _photo(ctx: SlashContext):
+@slash.slash(name="photo", description="Sends a random photo of Person", guild_ids=guild_ids)
+async def _photo(ctx):
     await ctx.send(5)
     await ctx.channel.send(file=discord.File(mediaGenerator("photo"), filename=None))
 @slash.slash(name="picasso",description="Sends a random piece of art", guild_ids=guild_ids)
@@ -91,8 +78,8 @@ async def _motion(ctx):
     await ctx.send(5)
     await ctx.channel.send(file=discord.File(mediaGenerator("motion"), filename=None))
 # Text
-@slash.slash(name="quote",description="Sends a randomised quote", guild_ids=guild_ids)
-async def _quote(ctx: SlashContext):
+@slash.slash(name="quote",description="Sends a randomised quote",guild_ids=guild_ids)
+async def _quote(ctx):
     await ctx.send(content=dialogueGenerator("quote"))
 @slash.slash(name="harass",description="Pings Person with a message", guild_ids=guild_ids)
 async def _harass(ctx):
@@ -103,7 +90,7 @@ async def _harass(ctx):
         await ctx.send(content=(dialogueGenerator("harass-error")))
 # Audio
 @slash.slash(name="summon",description="Brings PersonBot into the VC momentarily", guild_ids=guild_ids)
-async def _summon(ctx: SlashContext):
+async def _summon(ctx):
     channel = ctx.author.voice.channel #This is kinda interesting, worth exploring more
     voice = get(bot.voice_clients, guild=ctx.guild)
     def toaster(error):
