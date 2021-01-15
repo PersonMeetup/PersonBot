@@ -31,41 +31,25 @@ async def on_ready():
     resp = await manage_commands.get_all_commands(bot.user.id,os.getenv('PERSONBOT_TOKEN'),None)
     print(resp) #TODO: Once updated to 3.9.X, change to pprint
 
-@bot.event
-async def on_message(message):
-    mention = f'<@!{bot.user.id}>'
-    if mention in message.content:
-        await message.channel.send(dialogueGenerator('mentioned'))
 
 
-
-# Media
-@slash.slash(name='photo', description='Sends a random photo of Person')
+# "mediaGenerator" can be used to select random files.
+# PNG, GIF, MP4, pretty much anything under 8GB works.
+@slash.slash(name='photo', description='Sends a random photo')
 async def _photo(ctx):
     await ctx.send(5)
     await ctx.channel.send(file=discord.File(mediaGenerator('photo'), filename=None))
-@slash.slash(name='picasso',description='Sends a random piece of art')
-async def _picasso(ctx):
-    await ctx.send(5)
-    await ctx.channel.send(file=discord.File(mediaGenerator('picasso'), filename=None))
 @slash.slash(name='motion',description='Sends a random video')
 async def _motion(ctx):
     await ctx.send(5)
     await ctx.channel.send(file=discord.File(mediaGenerator('motion'), filename=None))
 
-# Text
+# "dialougeGenerator" picks random lines in TXT files.
 @slash.slash(name='quote',description='Sends a randomised quote')
 async def _quote(ctx):
     await ctx.send(content=dialogueGenerator('quote'))
-@slash.slash(name='harass',description='Pings Person with a message')
-async def _harass(ctx):
-    person = ctx.guild.get_member(149608924394422272)
-    try:
-        await ctx.send(content=(f'{person.mention} ' + dialogueGenerator('harass')))
-    except:
-        await ctx.send(content=(dialogueGenerator('error/error_harass') + "\n`Person Meetup wasn't detected in the server!`"), complete_hidden=True)
 
-# Audio
+# Another showcase of "mediaGenerator", this time with voice capabilities!
 @slash.slash(name='summon',description='Brings PersonBot into the VC momentarily')
 async def _summon(ctx):
     channel = ctx.author.voice.channel
@@ -79,7 +63,7 @@ async def _summon(ctx):
             pass #There was an error while sending message
 
     if voice and voice.is_connected():
-        await ctx.send(content=(dialogueGenerator('error/error_summon') + "\n`Unable to summon PersonBot, they may be in a voice channel already.`"), complete_hidden=True)
+        await ctx.send(content=("`Unable to summon PersonBot, they may be in a voice channel already.`"), complete_hidden=True)
     else:
         await ctx.send(5)
         voice = await channel.connect()
