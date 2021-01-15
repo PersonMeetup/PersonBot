@@ -25,11 +25,11 @@ def dialogueGenerator(request): return(random.choice(list(open('content/dialogue
 
 @bot.event
 async def on_ready():
-    status = (dialogueGenerator('game') + ' | / enabled')
     print('Internal Report Check: Logged in as {0.user}'.format(bot))
-    await bot.change_presence(activity=discord.Game(name=status))
-    resp = await manage_commands.get_all_commands(bot.user.id,os.getenv('PERSONBOT_TOKEN'),None)
-    print(resp) #TODO: Once updated to 3.9.X, change to pprint
+    status = ('Hello World!')                                       # You can change the status to whatever you want to,
+    await bot.change_presence(activity=discord.Game(name=status))   # or remove it along side this line.
+    resp = await manage_commands.get_all_commands(bot.user.id,os.getenv('PERSONBOT_TOKEN'),None) # This will tell you what commands
+    print(resp) #TODO: Once updated to 3.9.X, change to pprint                                   # Are registered to your bot.
 
 
 
