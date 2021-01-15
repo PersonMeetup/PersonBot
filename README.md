@@ -1,5 +1,6 @@
 # PersonBot
 ![GitHub](https://img.shields.io/github/license/PersonMeetup/PersonBot)
+
  *A simple Discord Bot made with flexability in mind.*
 
 For most people (including myself), the scope of Discord bots are simple, focusing just on simple responce commands. **PersonBot** serves as a base for making those bots, leaving less coding and hair pulling and more laughing at injokes with your friends. 
