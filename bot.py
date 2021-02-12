@@ -1,11 +1,13 @@
+#!/usr/bin/env python
 import discord
 from discord.ext import commands
 from discord.utils import get
 from discord_slash import SlashCommand, SlashContext, manage_commands
 import random
 from glob import glob
-import asyncio
-import os
+import asyncio; import os
+from dotenv import load_dotenv
+load_dotenv()
 
 intents = discord.Intents.default()
 intents.members = True
